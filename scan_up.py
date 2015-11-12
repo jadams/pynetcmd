@@ -18,7 +18,7 @@ def calc_CIDR(subnet):
 
 # Get's list of IP ranges and subnetmasks
 # Returns: List of IP ranges with CIDR subnets in string format
-def get_IPs():
+def get_subnet():
 	ipconfig = subprocess.check_output("ipconfig").split('\n')
 	IPs = []
 	IP_list = []
@@ -33,16 +33,17 @@ def get_IPs():
 		# Bad solution is bad
 		temp_IP[-1] = '0'
 		temp_IP = '.'.join(temp_IP)
-		IPs.append(temp_IP+'/'+calc_CIDR(SUB_list[i]))
+		# IPs.append(temp_IP+'/'+calc_CIDR(SUB_list[i]))
+		IPs.append(temp_IP+'/'+SUB_list[i])
 	return IPs
 
 
 # Asks user to use or not use IP ranges found from ipconfig
 # Returns: List of IP ranges selected from user input in string format
 # Note: Will exit program if no IP ranges are selected
-def check_IPs():
+def ip_prompt():
 	IPs = []
-	all_IPs = get_IPs()
+	all_IPs = get_subnet()
 	for ip in all_IPs:
 		end_loop = False
 		while(not end_loop):
@@ -69,13 +70,22 @@ def check_IPs():
 # Takes: String of IP range with CIDR notation ?
 # Returns: List of IP addresses found in IP range in string format
 # Note: Will exit program if sl.exe is not found in %PATH%
-def run_SL(range):
+def run_SL(ip_range):
+	command = 'sl.exe -ht ' + ip_range
 	try:
-		output = subprocess.check_output('sl.exe --help')
+		output = subprocess.check_output(command)
+		print
 	except:
 		print 'sl.exe not found.\n\nquitting...'
-		sys.exit(1)
-	return NULL
+		# sys.exit(1)
+
+	with open('sl_test_output.txt') as f:
+		output = f.readlines() 
+	ip_list = []
+	for line in output:
+		if '.' in line and 'ms' not in line:
+			ip_list.append(line.strip('\n'))
+	return ip_list
 
 
 # Runs psexec to run a command on target machine
@@ -88,15 +98,20 @@ def run_PSE(ipaddr, username, password):
 		output = subprocess.check_output(command)
 	except:
 		print 'psexec.exe not found.\n\nquitting...'
-		sys.exit(1)
+		# sys.exit(1)
 	return
+
+
+def main():
+	clients = []
+	IPs = ip_prompt()
+	for ip in IPs:
+		clients.append(run_SL(ip))
+	for slist in clients:
+		for ip in slist:
+			run_PSE(ip, 'test', 'pass')
+
 
 if __name__ == '__main__':
 	check_for_win()
-
-	run_PSE('192.168.1.10', 'test', 'pass')
-
-	# clients = []
-	# IPs = check_IPs()
-	# for ip in IPs:
-	# 	clients.append(run_SL(ip))
+	main()
