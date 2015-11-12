@@ -1,0 +1,30 @@
+Scan of 254 IPs started at Thu Nov 12 13:28:59 2015
+
+-------------------------------------------------------------------------------
+10.10.92.4
+Responded in 0 ms.
+0 hops away
+Responds with ICMP unreachable: No
+TCP ports: 445
+
+
+-------------------------------------------------------------------------------
+10.10.92.6
+Responded in 0 ms.
+0 hops away
+Responds with ICMP unreachable: No
+TCP ports: 445
+
+
+-------------------------------------------------------------------------------
+10.10.92.10
+Responded in 0 ms.
+0 hops away
+Responds with ICMP unreachable: No
+TCP ports: 445
+
+
+-------------------------------------------------------------------------------
+
+Scan finished at Thu Nov 12 13:29:12 2015
+
