@@ -41,9 +41,9 @@ def get_subnet():
 # Asks user to use or not use IP ranges found from ipconfig
 # Returns: List of IP ranges selected from user input in string format
 # Note: Will exit program if no IP ranges are selected
-def ip_prompt():
+def ip_prompt(all_IPs):
 	IPs = []
-	all_IPs = get_subnet()
+	# all_IPs = get_subnet()
 	for ip in all_IPs:
 		end_loop = False
 		while(not end_loop):
@@ -71,10 +71,32 @@ def ip_prompt():
 # Returns: List of IP addresses found in IP range in string format
 # Note: Will exit program if sl.exe is not found in %PATH%
 def run_SL(ip_range):
-	command = 'sl.exe -ht ' + ip_range
+
+	ip = ip_range.split('/')
+	split_ip = ip[0].split('.')
+	if ip[-1] == '255.255.255.1':
+		split_ip[-1] = '1-254'
+	else:
+		end_loop = False
+		while(not end_loop):
+			ans = raw_input("Enter IP range: ")
+			if '-' in ans:
+				nums = ans.split('-')
+				if len(nums) == 2:
+					try:
+						if (int(nums[0]) < int(nums[1])) and (int(nums[1]) < 255):
+							split_ip[-1] = ans
+							end_loop = True
+							break
+					except:
+						pass
+			print '\nEnter range in format: 1-254'
+
+	c_ip = '.'.join(split_ip)
+	command = 'sl.exe -ht 445 ' + c_ip 
 	try:
+		print command
 		output = subprocess.check_output(command)
-		print
 	except:
 		print 'sl.exe not found.\n\nquitting...'
 		# sys.exit(1)
@@ -93,8 +115,8 @@ def run_SL(ip_range):
 # Note: Will exit program if psexec.exe is not found in %PATH%
 def run_PSE(ipaddr, username, password):
 	command = 'psexec ' + '\\\\' + ipaddr + ' -u ' + username + ' -p ' + password + ' /c ' + 'command.bat'
-	print command
 	try:
+		print command
 		output = subprocess.check_output(command)
 	except:
 		print 'psexec.exe not found.\n\nquitting...'
@@ -104,9 +126,12 @@ def run_PSE(ipaddr, username, password):
 
 def main():
 	clients = []
-	IPs = ip_prompt()
+	# Get subnet and prompt for use
+	IPs = ip_prompt(get_subnet())
+	# Run sl on subnets (1 loop for 1 nic)
 	for ip in IPs:
 		clients.append(run_SL(ip))
+	# Run psexec on subnets (1 loop for 1 nic)
 	for slist in clients:
 		for ip in slist:
 			run_PSE(ip, 'test', 'pass')
