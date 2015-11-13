@@ -74,7 +74,7 @@ def run_SL(ip_range):
 
 	ip = ip_range.split('/')
 	split_ip = ip[0].split('.')
-	if ip[-1] == '255.255.255.1':
+	if ip[-1] == '255.255.255.0':
 		split_ip[-1] = '1-254'
 	else:
 		end_loop = False
@@ -125,6 +125,12 @@ def run_PSE(ipaddr, username, password):
 
 
 def main():
+	try:
+		username = sys.argv[1]
+		password = sys.argv[2]
+	except:
+		print 'Usage: ' + sys.argv[0] + ' <username> <password>'
+		sys.exit(1)
 	clients = []
 	# Get subnet and prompt for use
 	IPs = ip_prompt(get_subnet())
@@ -134,7 +140,7 @@ def main():
 	# Run psexec on subnets (1 loop for 1 nic)
 	for slist in clients:
 		for ip in slist:
-			run_PSE(ip, 'test', 'pass')
+			run_PSE(ip, username, password)
 
 
 if __name__ == '__main__':
