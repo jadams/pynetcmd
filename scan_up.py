@@ -9,15 +9,17 @@ def check_for_win():
 		sys.exit(1)
 
 
+### Dead code follows ###
 # Calculates CIDR notation from subnet mask
 # Takes: xxx.xxx.xxx.xxx styled subnet mask string
 # Returns: String of equivalent CIDR notation 
 def calc_CIDR(subnet):
     return str(sum([bin(int(x)).count('1') for x in subnet.split('.')]))
+### End dead code ###
 
 
 # Get's list of IP ranges and subnetmasks
-# Returns: List of IP ranges with CIDR subnets in string format
+# Returns: List of IP ranges with subnets in string format
 def get_subnet():
 	ipconfig = subprocess.check_output("ipconfig").split('\n')
 	IPs = []
@@ -67,7 +69,7 @@ def ip_prompt(all_IPs):
 
 
 # Runs sl.exe (scanline) on given IP range
-# Takes: String of IP range with CIDR notation ?
+# Takes: String of IP range with subnet notation
 # Returns: List of IP addresses found in IP range in string format
 # Note: Will exit program if sl.exe is not found in %PATH%
 def run_SL(ip_range):
@@ -95,7 +97,7 @@ def run_SL(ip_range):
 	c_ip = '.'.join(split_ip)
 	command = 'sl.exe -ht 445 ' + c_ip 
 	try:
-		print command
+		print 'running ' + command
 		output = subprocess.check_output(command)
 	except:
 		print 'sl.exe not found.\n\nquitting...'
@@ -113,10 +115,10 @@ def run_SL(ip_range):
 # Runs psexec to run a command on target machine
 # Takes: IP address in string format, Username string, Password string
 # Note: Will exit program if psexec.exe is not found in %PATH%
-def run_PSE(ipaddr, username, password):
-	command = 'psexec ' + '\\\\' + ipaddr + ' -u ' + username + ' -p ' + password + ' /c ' + 'command.bat'
+def run_PSE(ipaddr, username, password, runfile):
+	command = 'psexec ' + '\\\\' + ipaddr + ' -u ' + username + ' -p ' + password + ' /c ' + runfile
 	try:
-		print command
+		print 'running ' + command
 		output = subprocess.check_output(command)
 	except:
 		print 'psexec.exe not found.\n\nquitting...'
@@ -128,9 +130,16 @@ def main():
 	try:
 		username = sys.argv[1]
 		password = sys.argv[2]
+		runfile  = sys.argv[3]
 	except:
-		print 'Usage: ' + sys.argv[0] + ' <username> <password>'
+		print 'Usage: ' + sys.argv[0] + ' <username> <password> <file to run>'
 		sys.exit(1)
+	try:
+		open(runfile)
+	except:
+		print runfile + ' not found'
+		sys.exit(1)
+
 	clients = []
 	# Get subnet and prompt for use
 	IPs = ip_prompt(get_subnet())
@@ -140,7 +149,7 @@ def main():
 	# Run psexec on subnets (1 loop for 1 nic)
 	for slist in clients:
 		for ip in slist:
-			run_PSE(ip, username, password)
+			run_PSE(ip, username, password, runfile)
 
 
 if __name__ == '__main__':
