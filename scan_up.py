@@ -49,7 +49,7 @@ def ip_prompt(all_IPs):
 	for ip in all_IPs:
 		end_loop = False
 		while(not end_loop):
-			print 'Use IP range \''+ ip +'\'?'
+			print 'Use IP range \"'+ ip +'\"?'
 			ans = raw_input("[Y/n] ")
 			if ans.upper() == 'Y':
 				IPs.append(ip)
@@ -95,16 +95,16 @@ def run_SL(ip_range):
 			print '\nEnter range in format: 1-254'
 
 	c_ip = '.'.join(split_ip)
-	command = 'sl.exe -ht 445 ' + c_ip 
+	command = 'sl.exe -ht 445 ' + c_ip
 	try:
-		print 'running ' + command
+		print 'running \"' + command + '\"'
 		output = subprocess.check_output(command)
 	except:
 		print 'sl.exe not found.\n\nquitting...'
 		# sys.exit(1)
 
 	with open('sl_test_output.txt') as f:
-		output = f.readlines() 
+		output = f.readlines()
 	ip_list = []
 	for line in output:
 		if '.' in line and 'ms' not in line:
@@ -118,7 +118,7 @@ def run_SL(ip_range):
 def run_PSE(ipaddr, username, password, runfile):
 	command = 'psexec ' + '\\\\' + ipaddr + ' -u ' + username + ' -p ' + password + ' /c ' + runfile
 	try:
-		print 'running ' + command
+		print 'running \"' + command + '\"'
 		output = subprocess.check_output(command)
 	except:
 		print 'psexec.exe not found.\n\nquitting...'
